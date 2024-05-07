@@ -6,22 +6,16 @@ def preprocess_data(df):
     # Data cleaning
     cols_to_drop = [
         "patientID", "hospAdatetime", "hospDdatetime", "icuAdatetime", "icuDdatetime",
-        "apache4", "DISCHDISPOSITIONTXT", "teamtransfer"
+        "apache4", "DISCHDISPOSITIONTXT", "teamtransfer", "BinDaysfromHostoICUAdmit"
     ]
     df = df.drop(columns=cols_to_drop)
 
     df = df[df['icudeath'] == 0]
     df = df[df['hospdeath'] == 0]
-    df = df[df['INITIALADMIT'] == 1]
+    # df = df[df['INITIALADMIT'] == 1]
     df = df.drop(columns=['icudeath'])
     df = df.drop(columns=['hospdeath'])
-    df = df.drop(columns=['INITIALADMIT'])
-    df = df.dropna(subset=['ADMITLOCATIONTXT'])
-    df['BinDaysfromHostoICUAdmit'] = df['BinDaysfromHostoICUAdmit'].apply(
-        lambda x: "Not Initial Admission" if x == "NA" else x
-    )
-    df['ADMITLOCATIONTXT'] = df['ADMITLOCATIONTXT'].astype('category')
-    df['BinDaysfromHostoICUAdmit'] = df['BinDaysfromHostoICUAdmit'].astype('category')
+    # df = df.drop(columns=['INITIALADMIT'])
 
     # Apply KNN imputation
     numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns
