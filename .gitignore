@@ -1,3 +1,5 @@
 lightning_logs/
 __pycache__/
 figures/
+__init__.py
+data_profile.html
