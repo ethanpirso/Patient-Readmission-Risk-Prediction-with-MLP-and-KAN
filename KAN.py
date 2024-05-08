@@ -8,25 +8,19 @@ from kan import KANLayer
 class KAN(pl.LightningModule):
     def __init__(self):
         super().__init__()
-        self.kan1 = KANLayer(in_dim=13, out_dim=16, k=3)
-        self.kan2 = KANLayer(in_dim=16, out_dim=32, k=3)
-        self.kan3 = KANLayer(in_dim=32, out_dim=16, k=3)
-        self.fc1 = nn.Linear(16, 8)
-        self.fc2 = nn.Linear(8, 1)
-
+        self.kan1 = KANLayer(in_dim=13, out_dim=1, k=3)
+        self.bias1 = nn.Parameter(torch.zeros(1)).requires_grad_(True)
+        self.scale1 = nn.Parameter(torch.ones(1)).requires_grad_(True)
+        
     def forward(self, x):
-        x, preacts1, postacts1, postspline1 = self.kan1(x)
-        x, preacts2, postacts2, postspline2 = self.kan2(x)
-        x, preacts3, postacts3, postspline3 = self.kan3(x)
-        x = x.view(x.size(0), -1)  # Flatten the output to match the input dimension of fc1
-        x = F.relu(self.fc1(x))  # Added a ReLU activation function for non-linearity before the final output
-        x = self.fc2(x)
+        x, _, _, _ = self.kan1(x)
+        x = (x + self.bias1) * self.scale1
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
-        # scheduler = CosineAnnealingLR(optimizer, T_max=10, eta_min=0.00001)
-        return [optimizer]#, [scheduler]
+        optimizer = torch.optim.Adam(self.parameters(), lr=0.002)
+        scheduler = CosineAnnealingLR(optimizer, T_max=10, eta_min=0.0001)
+        return [optimizer], [scheduler]
 
     def training_step(self, batch, batch_idx):
         x, y = batch

@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import MinMaxScaler
 
 def preprocess_data(df):
     # Data cleaning
@@ -35,6 +36,16 @@ def preprocess_data(df):
     # Combine 'readmit72' and 'readmit72_next' into a single target column
     df['readmit72'] = df[['readmit72', 'readmit72_next']].any(axis=1)
     df = df.drop(columns=['readmit72_next'])
+
+    # Identify binary columns (assuming binary columns contain only 0 and 1)
+    binary_cols = [col for col in df.columns if df[col].dropna().isin([0, 1]).all()]
+
+    # Identify non-binary columns
+    non_binary_cols = [col for col in df.columns if col not in binary_cols]
+
+    # Apply MinMaxScaler to non-binary columns
+    scaler = MinMaxScaler()
+    df[non_binary_cols] = scaler.fit_transform(df[non_binary_cols])
 
     return df
 
