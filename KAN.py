@@ -9,8 +9,8 @@ class KAN(pl.LightningModule):
     def __init__(self):
         super().__init__()
         self.kan1 = KANLayer(in_dim=13, out_dim=1, k=3)
-        self.bias1 = nn.Parameter(torch.zeros(1)).requires_grad_(True)
-        self.scale1 = nn.Parameter(torch.ones(1)).requires_grad_(True)
+        self.bias1 = nn.Parameter(torch.zeros(1))
+        self.scale1 = nn.Parameter(torch.ones(1))
         
     def forward(self, x):
         x, _, _, _ = self.kan1(x)
